@@ -1,4 +1,4 @@
-# Bubblewrap Sandbox for AI Coding Agents
+# 🤖 Bubblewrap Sandbox for AI Coding Agents
 
 A small Bubblewrap-based sandbox for running AI coding agents such as Claude Code and Codex with access to the **current project only**, instead of exposing the entire home directory.
 
@@ -13,29 +13,9 @@ The main goal is simple:
 
 This is intended as a practical safety layer for local AI coding agents, not as a replacement for a VM or container runtime.
 
-## How it works
+## 💡 How it works
 
-Suppose you run the sandbox from:
-
-```text
-/home/user/dev/my-project
-```
-
-Inside the sandbox, the agent still sees:
-
-```text
-/home/user/dev/my-project
-```
-
-but `/home/user` is not your real home directory.
-
-Instead, it is backed by:
-
-```text
-~/.local/share/agent-sandbox/home
-```
-
-The current project is then mounted back on top of this fake home:
+Suppose you run the sandbox from `/home/user/dev/my-project`. Inside the sandbox, the agent still sees `/home/user/dev/my-project`, but `/home/user` is not your real home directory. Instead, it is backed by `~/.local/share/agent-sandbox/home`. The current project is then mounted back on top of this fake home:
 
 ```text
 real ~/.local/share/agent-sandbox/home -> sandbox /home/user
@@ -43,18 +23,10 @@ real ~/.local/share/agent-sandbox/home -> sandbox /home/user
 real ~/dev/my-project -> sandbox /home/user/dev/my-project
 ```
 
-As a result, the agent can work normally in the current project but cannot access sibling projects or sensitive directories such as:
+As a result, the agent can work normally in the current project but cannot access sibling projects or sensitive directories such as: `~/.ssh`, `~/.aws`, `~/Documents`, `~/dev/other-project`, etc, unless they are explicitly mounted.
 
-```text
-~/.ssh
-~/.aws
-~/Documents
-~/dev/other-project
-```
 
-unless they are explicitly mounted.
-
-## 1. Install Bubblewrap
+## 1️⃣ Install Bubblewrap
 
 ### Ubuntu
 
@@ -65,7 +37,6 @@ sudo apt install bubblewrap
 bwrap --version
 ```
 
-
 ### Fedora
 
 ```bash
@@ -75,7 +46,7 @@ bwrap --version
 ```
 
 
-## 2. Create the sandbox directory
+## 2️⃣ Create the sandbox directory
 
 ```bash
 mkdir -p ~/.local/share/agent-sandbox/home
@@ -87,7 +58,7 @@ Create the launcher file:
 touch ~/.local/share/agent-sandbox/sandbox
 ```
 
-## 3. Sandbox script
+## 3️⃣ Sandbox script
 
 Start with:
 
@@ -135,7 +106,7 @@ Test it:
 ~/.local/share/agent-sandbox/sandbox bash
 ```
 
-## 4. Verify filesystem isolation
+## 4️⃣ Verify filesystem isolation
 
 Inside the sandbox:
 
@@ -162,7 +133,7 @@ exit
 ```
 
 
-## 5. Python and uv
+## 5️⃣ Python and uv
 
 If the project uses a virtual environment created with `uv`, `.venv/bin/python` may be an absolute symlink to a uv-managed Python installation. Check it outside the sandbox:
 
@@ -206,7 +177,7 @@ System Python remains available independently, for example:
 python3 --version
 ```
 
-## 6. Claude Code
+## 6️⃣ Claude Code
 
 First determine where Claude Code is installed:
 
@@ -263,7 +234,7 @@ debug/
 
 It is generally cleaner to authenticate Claude separately inside the sandbox.
 
-## 7. Codex
+## 7️⃣ Codex
 
 If Codex is installed system-wide, returns, for example:
 
@@ -280,7 +251,7 @@ then no additional mount is necessary because `/usr` is already exposed read-onl
 
 Complete authentication inside the sandbox if required. Codex will then keep its sandbox-specific state under `~/.local/share/agent-sandbox/home/.codex`, while seeing it internally as `~/.codex`. If Codex is installed somewhere under the real home directory instead, selectively expose its installation files in the same way as Claude Code.
 
-## 8. Optional: RTK
+## 8️⃣ Optional: RTK
 
 If you use RTK, first locate it:
 
@@ -323,7 +294,7 @@ The resulting files live physically under the sandbox home, for example:
 ~/.local/share/agent-sandbox/home/.codex/
 ```
 
-## 9. Example full script
+## 9️⃣ Example full script
 
 A setup with uv-managed Python, Claude Code and RTK may look like this:
 
@@ -369,7 +340,7 @@ exec bwrap \
 
 The Claude and RTK paths in this example are installation-specific. Check them with `command -v`, `ls -l` and `readlink -f` before copying this configuration.
 
-## 10. Zsh / Oh My Zsh aliases
+## 1️⃣0️⃣ Zsh / Oh My Zsh aliases
 
 To avoid typing the full launcher path, add aliases to `~/.zshrc`. For example:
 
@@ -401,7 +372,7 @@ sbash
 The directory from which the command is started becomes the sandbox's writable project directory. Keeping the sandboxed and unsandboxed commands separate is useful `claude -> normal Claude`, `sclaude -> sandboxed Claude`, `codex -> normal Codex`, `scodex -> sandboxed Codex`, etc.
 
 
-## Security model
+## 🛡️ Security model
 
 This sandbox is primarily designed to prevent an AI coding agent from accidentally reading or modifying files outside the current project. The agent can:
 
@@ -422,7 +393,7 @@ However, this is **not a VM**. The sandbox shares the host Linux kernel. Network
 
 Bubblewrap should be treated as a strong filesystem/process isolation layer for this use case, not as protection against arbitrary malicious code or kernel-level attacks.
 
-## Useful diagnostics
+## 🛠️ Useful diagnostics
 
 Enter the sandbox manually:
 
